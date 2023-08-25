@@ -1,0 +1,94 @@
+<?php
+session_start();
+
+// Wörterliste
+$wordList = ["hangman", "programming", "openai", "developer", "php"];
+
+// Zufälliges Wort auswählen
+$randomIndex = array_rand($wordList);
+$selectedWord = strtolower($wordList[$randomIndex]);
+
+// Anzahl der erlaubten Fehler
+$maxAttempts = 6;
+
+// Initialisierung der Session-Daten, wenn nicht vorhanden
+if (!isset($_SESSION['selectedWord'])) {
+    $_SESSION['selectedWord'] = $selectedWord;
+    $_SESSION['guessedLetters'] = [];
+    $_SESSION['attemptsLeft'] = $maxAttempts;
+}
+
+// Neues Spiel starten
+if (isset($_GET['new'])) {
+    session_destroy();
+    header("Location: hangman.php");
+    exit;
+}
+
+// Aktuellen Status des Spiels überprüfen
+$selectedWord = $_SESSION['selectedWord'];
+$guessedLetters = $_SESSION['guessedLetters'];
+$attemptsLeft = $_SESSION['attemptsLeft'];
+
+// Buchstabe überprüfen
+if (isset($_POST['letter']) && strlen($_POST['letter']) === 1 && preg_match("/[a-z]/i", $_POST['letter'])) {
+    $letter = strtolower($_POST['letter']);
+    if (!in_array($letter, $guessedLetters)) {
+        $guessedLetters[] = $letter;
+        if (strpos($selectedWord, $letter) === false) {
+            $attemptsLeft--;
+        }
+        $_SESSION['guessedLetters'] = $guessedLetters;
+        $_SESSION['attemptsLeft'] = $attemptsLeft;
+    }
+}
+
+// Überprüfen, ob das Spiel gewonnen oder verloren wurde
+$gameWon = true;
+foreach (str_split($selectedWord) as $letter) {
+    if (!in_array($letter, $guessedLetters)) {
+        $gameWon = false;
+        break;
+    }
+}
+
+$gameLost = ($attemptsLeft === 0);
+
+// HTML-Ausgabe
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hangman Spiel</title>
+</head>
+<body>
+    <h1>Hangman Spiel</h1>
+    
+    <?php if (!$gameWon && !$gameLost): ?>
+        <p>Wort: 
+            <?php
+                foreach (str_split($selectedWord) as $letter) {
+                    echo (in_array($letter, $guessedLetters)) ? $letter : "_";
+                    echo " ";
+                }
+            ?>
+        </p>
+        
+        <p>Restliche Versuche: <?= $attemptsLeft ?></p>
+        
+        <form method="post">
+            <label for="letter">Buchstabe eingeben:</label>
+            <input type="text" id="letter" name="letter" maxlength="1" pattern="[a-zA-Z]" required>
+            <button type="submit">Rate</button>
+        </form>
+    <?php endif; ?>
+    
+    <?php if ($gameWon): ?>
+        <p>Du hast gewonnen! Das Wort war: <?= $selectedWord ?></p>
+        <a href="?new=1">Neues Spiel starten</a>
+    <?php elseif ($gameLost): ?>
+        <p>Du hast verloren! Das Wort war: <?= $selectedWord ?></p>
+        <a href="?new=1">Neues Spiel starten</a>
+    <?php endif; ?>
+</body>
+</html>
