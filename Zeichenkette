@@ -1,0 +1,28 @@
+using System;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        Console.Write("Geben Sie eine Zeichenkette ein: ");
+        string input = Console.ReadLine().ToUpper(); // Umwandlung in Großbuchstaben
+
+        int totalValue = CalculateLetterValueSum(input);
+
+        Console.WriteLine($"Gesamtwert der Buchstaben: {totalValue}");
+    }
+
+    static int CalculateLetterValueSum(string input)
+    {
+        int sum = 0;
+        foreach (char c in input)
+        {
+            if (char.IsLetter(c)) // Prüfen, ob es sich um einen Buchstaben handelt
+            {
+                int letterValue = (int)c - (int)'A' + 1;
+                sum += letterValue;
+            }
+        }
+        return sum;
+    }
+}
