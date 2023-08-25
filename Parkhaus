@@ -1,0 +1,140 @@
+using System;
+using System.Collections.Generic;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        Parkhaus parkhaus = new Parkhaus(3, 5); // 3 Etagen, 5 Parkplätze pro Etage
+
+        while (true)
+        {
+            Console.WriteLine("1. Fahrzeug einfahren");
+            Console.WriteLine("2. Fahrzeug ausfahren");
+            Console.WriteLine("3. Fahrzeugposition abfragen");
+            Console.WriteLine("4. Freie Parkplätze abfragen");
+            Console.WriteLine("5. Beenden");
+
+            int choice = Convert.ToInt32(Console.ReadLine());
+
+            switch (choice)
+            {
+                case 1:
+                    parkhaus.FahrzeugEinfahren();
+                    break;
+                case 2:
+                    parkhaus.FahrzeugAusfahren();
+                    break;
+                case 3:
+                    parkhaus.FahrzeugPositionAbfragen();
+                    break;
+                case 4:
+                    parkhaus.FreieParkplaetzeAbfragen();
+                    break;
+                case 5:
+                    return;
+                default:
+                    Console.WriteLine("Ungültige Eingabe");
+                    break;
+            }
+        }
+    }
+}
+
+class Parkhaus
+{
+    private int etagen;
+    private int parkplaetzeProEtage;
+    private bool[,] parkplaetze; // true = belegt, false = frei
+
+    public Parkhaus(int etagen, int parkplaetzeProEtage)
+    {
+        this.etagen = etagen;
+        this.parkplaetzeProEtage = parkplaetzeProEtage;
+        parkplaetze = new bool[etagen, parkplaetzeProEtage];
+    }
+
+    public void FahrzeugEinfahren()
+    {
+        for (int etage = 0; etage < etagen; etage++)
+        {
+            for (int parkplatz = 0; parkplatz < parkplaetzeProEtage; parkplatz++)
+            {
+                if (!parkplaetze[etage, parkplatz])
+                {
+                    parkplaetze[etage, parkplatz] = true;
+                    Console.WriteLine($"Fahrzeug eingefahren auf Etage {etage + 1}, Parkplatz {parkplatz + 1}");
+                    return;
+                }
+            }
+        }
+        Console.WriteLine("Keine freien Parkplätze verfügbar");
+    }
+
+    public void FahrzeugAusfahren()
+    {
+        Console.Write("Geben Sie die Etage des ausfahrenden Fahrzeugs ein: ");
+        int etage = Convert.ToInt32(Console.ReadLine()) - 1;
+
+        Console.Write("Geben Sie den Parkplatz des ausfahrenden Fahrzeugs ein: ");
+        int parkplatz = Convert.ToInt32(Console.ReadLine()) - 1;
+
+        if (etage >= 0 && etage < etagen && parkplatz >= 0 && parkplatz < parkplaetzeProEtage)
+        {
+            if (parkplaetze[etage, parkplatz])
+            {
+                parkplaetze[etage, parkplatz] = false;
+                Console.WriteLine($"Fahrzeug ausgefahren von Etage {etage + 1}, Parkplatz {parkplatz + 1}");
+            }
+            else
+            {
+                Console.WriteLine("Der Parkplatz ist bereits frei");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Ungültige Etage oder Parkplatznummer");
+        }
+    }
+
+    public void FahrzeugPositionAbfragen()
+    {
+        Console.Write("Geben Sie die Etage des Fahrzeugs ein: ");
+        int etage = Convert.ToInt32(Console.ReadLine()) - 1;
+
+        Console.Write("Geben Sie den Parkplatz des Fahrzeugs ein: ");
+        int parkplatz = Convert.ToInt32(Console.ReadLine()) - 1;
+
+        if (etage >= 0 && etage < etagen && parkplatz >= 0 && parkplatz < parkplaetzeProEtage)
+        {
+            if (parkplaetze[etage, parkplatz])
+            {
+                Console.WriteLine($"Das Fahrzeug befindet sich auf Etage {etage + 1}, Parkplatz {parkplatz + 1}");
+            }
+            else
+            {
+                Console.WriteLine("Der Parkplatz ist frei");
+            }
+        }
+        else
+        {
+            Console.WriteLine("Ungültige Etage oder Parkplatznummer");
+        }
+    }
+
+    public void FreieParkplaetzeAbfragen()
+    {
+        int freiePlaetze = 0;
+        for (int etage = 0; etage < etagen; etage++)
+        {
+            for (int parkplatz = 0; parkplatz < parkplaetzeProEtage; parkplatz++)
+            {
+                if (!parkplaetze[etage, parkplatz])
+                {
+                    freiePlaetze++;
+                }
+            }
+        }
+        Console.WriteLine($"Anzahl freie Parkplätze: {freiePlaetze}");
+    }
+}
